@@ -6,16 +6,15 @@ from enums.tipo_item import TipoItem
 from enums.tipo_cliente import TipoCliente
 from enums.status_pedido import StatusPedido
 from datetime import datetime
-import sqlite3
+from interfaces.conexao import IConexao
 import json
 
 
 class PedidoRepository(Repository[Pedido, int]):
     DATE_PATTERN = '%Y-%m-%d %H:%M:%S'
 
-    def __init__(self):
-        self.db = sqlite3.connect('loja.db')
-        self.cursor = self.db.cursor()
+    def __init__(self, conexao: IConexao):
+        (self.db, self.cursor) = conexao.get_conexao()
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS ped (
             id INTEGER PRIMARY KEY,
             cli TEXT,
@@ -38,17 +37,15 @@ class PedidoRepository(Repository[Pedido, int]):
         return dados
 
     def recuperar_por_id(self, id: int) -> Pedido:
-        self.cursor.execute("SELECT * FROM ped WHERE id=?", (id,))
-        row = self.cursor.fetchone()
-        if not row:
+        pedidos = self.rodar_select("SELECT * FROM ped WHERE id=?", (id,))
+        if len(pedidos) == 0:
             raise Exception(f"Pedido não encontrado com Id: {id}")
 
-        return self.__converter_banco_para_modelo_pedido(row)
+        return pedidos[0]
 
     def recuperar_tudo(self) -> list[Pedido]:
-        self.cursor.execute("SELECT * FROM ped")
-        pedidos = self.cursor.fetchall()
-        return [self.__converter_banco_para_modelo_pedido(row) for row in pedidos]
+        pedidos = self.rodar_select("SELECT * FROM ped")
+        return pedidos
 
     def atualizar(self, dados: Pedido) -> Pedido:
         itens_json = self.__gerar_json_itens(dados.itens)
@@ -61,6 +58,15 @@ class PedidoRepository(Repository[Pedido, int]):
         self.db.commit()
 
         return self.recuperar_por_id(dados.id)
+
+    def rodar_select(self, select: str, params=None) -> list[Pedido]:
+        if params:
+            self.cursor.execute(select, params)
+        else:
+            self.cursor.execute(select)
+
+        pedidos = self.cursor.fetchall()
+        return [self.__converter_banco_para_modelo_pedido(row) for row in pedidos]
 
     def close(self):
         self.db.close()

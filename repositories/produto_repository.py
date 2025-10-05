@@ -30,5 +30,8 @@ class ProdutoRepositorySimplificado(Repository[Produto, str]):
                 produto.estoque = dados.estoque
         return Produto(produto.nome, produto.estoque)
 
+    def rodar_select(self, select: str, params=None) -> list[Produto]:
+        return self.recuperar_tudo()
+
     def close(self):
         self.database = []

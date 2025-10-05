@@ -199,8 +199,8 @@ def main():
     pid = s.add_ped('cliente@exemplo.com', its1, 'normal')
     print(s.get_ped(pid))
     s.proc_pag(pid, 'pix', 200)
-    # s.gerar_rel('vendas')
-    # s.gerar_rel('clientes')
+    s.gerar_rel('vendas')
+    s.gerar_rel('clientes')
     s.close()
 
 

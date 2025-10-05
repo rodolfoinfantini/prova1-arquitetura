@@ -3,12 +3,13 @@ from strategies.estrategia_desconto import EstrategiaDesconto, DescontoNormal, D
 
 
 class TipoCliente(Enum):
-    NORMAL = "normal", DescontoNormal()
-    VIP = "vip", Desconto5()
+    NORMAL = "normal", DescontoNormal(), 1
+    VIP = "VIP", Desconto5(), 2  # vip ganha 2x pontos
 
-    def __init__(self, nome: str, estrategia_desconto: EstrategiaDesconto):
+    def __init__(self, nome: str, estrategia_desconto: EstrategiaDesconto, pontos_multi: float):
         self.nome = nome
         self.estrategia_desconto = estrategia_desconto
+        self.pontos_multi = pontos_multi
 
     @classmethod
     def from_nome(cls, nome: str):
