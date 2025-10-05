@@ -3,6 +3,7 @@ from models.cliente import Cliente
 from models.item_pedido import ItemPedido
 from models.pedido import Pedido
 from enums.status_pedido import StatusPedido
+from enums.status_pagamento import StatusPagamento
 from enums.metodo_pagamento import MetodoPagamento
 
 
@@ -16,5 +17,5 @@ class IPedidoService(ABC):
         pass
 
     @abstractmethod
-    def processar_pagamento(self, id: int, metodo_pagamento: MetodoPagamento, valor: float) -> bool:
+    def processar_pagamento(self, id: int, metodo_pagamento: MetodoPagamento, valor: float) -> StatusPagamento:
         pass

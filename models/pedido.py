@@ -25,14 +25,14 @@ class Pedido:
             self.data = datetime.now()
             self.calcular_total()
 
-    def __calcular_total_itens(self) -> float:
+    def _calcular_total_itens(self) -> float:
         total = 0
         for item in self.itens:
             total += item.calcular_total()
         return total
 
     def calcular_total(self) -> float:
-        total_items = self.__calcular_total_itens()
+        total_items = self._calcular_total_itens()
         self.total = self.cliente.tipo.estrategia_desconto.aplicar_desconto(
             total_items)
         return self.total

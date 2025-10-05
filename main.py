@@ -4,7 +4,7 @@ from models.cliente import Cliente
 from enums.tipo_item import TipoItem
 from enums.tipo_cliente import TipoCliente
 from enums.metodo_pagamento import MetodoPagamento
-from services.pedido_service import PedidoService
+from services.pedido_service import PedidoService, PedidoEspecialService
 from services.estoque_service import EstoqueService
 from services.relatorio_service import RelatorioClientesService, RelatorioVendasService, SalvarEmArquivo
 from repositories.pedido_repository import PedidoRepository
@@ -21,10 +21,8 @@ def main():
     ), EmailNotificacaoService(), PontosService()]
     acoes_pos_criacao = [EmailNotificacaoService()]
     pedido_repository = PedidoRepository(conexao)
-    produtos_repository = ProdutoRepositorySimplificado()
-    estoque_service = EstoqueService(produtos_repository)
     pedido_service = PedidoService(
-        pedido_repository, estoque_service, acoes_pos_status, acoes_pos_criacao)
+        pedido_repository, EstoqueService(ProdutoRepositorySimplificado()), acoes_pos_status, acoes_pos_criacao)
 
     items = [
         ItemPedido('produto1', 100, 1, TipoItem.NORMAL),
@@ -36,14 +34,10 @@ def main():
 
     pedido_service.processar_pagamento(pedido.id, MetodoPagamento.PIX, 200)
 
-    arquivo_relatorio_vendas = SalvarEmArquivo('rel_vendas.txt')
-    arquivo_relatorio_clientes = SalvarEmArquivo('rel_clientes.txt')
-
-    cliente_repository = ClienteRepository(conexao)
     relatorio_vendas_service = RelatorioVendasService(
-        pedido_repository, arquivo_relatorio_vendas)
+        pedido_repository, SalvarEmArquivo('rel_vendas.txt'))
     relatorio_clientes_service = RelatorioClientesService(
-        cliente_repository, pedido_repository, arquivo_relatorio_clientes)
+        ClienteRepository(conexao), pedido_repository, SalvarEmArquivo('rel_clientes.txt'))
 
     relatorio_vendas_service.gerar_relatorio()
     relatorio_clientes_service.gerar_relatorio()
